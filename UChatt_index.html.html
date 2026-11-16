@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nommensen Chat</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1fb;--panel:#ffffff;--text:#171c2e;--muted:#7a8199;--line:#e3e7f5;--g1:#6a5cff;--g2:#2dc7ff;--other:#ffffff;--other-t:#171c2e;--mine-t:#fff;--shadow:0 6px 24px rgba(60,70,140,.12);--chip:#f1f3fc;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0c0f1a;--panel:#141828;--text:#eceffa;--muted:#8a92ad;--line:#232942;--other:#1e2338;--other-t:#eceffa;--shadow:0 6px 24px rgba(0,0,0,.4);--chip:#1b2036;color-scheme:dark}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.45}
+.hide{display:none!important}
+#app{height:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;background:var(--bg);position:relative}
+
+/* LOGIN */
+#login{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;background:radial-gradient(900px 400px at 50% -10%,rgba(106,92,255,.28),transparent),radial-gradient(600px 300px at 90% 100%,rgba(45,199,255,.22),transparent)}
+.logo{width:84px;height:84px;border-radius:26px;background:linear-gradient(135deg,var(--g1),var(--g2));display:grid;place-items:center;font-size:42px;box-shadow:0 14px 34px rgba(106,92,255,.45);margin-bottom:20px;transform:rotate(-6deg)}
+#login h1{font-size:30px;font-weight:800;margin:0 0 6px;letter-spacing:-.5px}
+#login p{color:var(--muted);margin:0 0 26px;max-width:300px}
+.card{width:100%;max-width:340px;background:var(--panel);padding:16px;border-radius:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.card input{padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--text);font:inherit;font-size:16px;outline:none;transition:.15s}
+.card input:focus{border-color:var(--g1)}
+.btn{border:0;border-radius:14px;padding:14px;font:inherit;font-weight:700;font-size:16px;color:#fff;background:linear-gradient(135deg,var(--g1),var(--g2));cursor:pointer;box-shadow:0 8px 20px rgba(106,92,255,.35);transition:transform .1s}
+.btn:active{transform:scale(.97)}
+
+/* HEADER */
+header{padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 12px;background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;border-radius:0 0 26px 26px;box-shadow:0 10px 30px rgba(106,92,255,.3);z-index:2}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .ic{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:20px}
+.brand b{font-size:18px;font-weight:800;display:block;line-height:1.1}
+.brand span{font-size:12px;opacity:.85}
+.mebadge{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.2);padding:4px 12px 4px 4px;border-radius:999px;font-weight:600;font-size:13px}
+.rooms{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.rooms::-webkit-scrollbar{display:none}
+.rooms button{flex:0 0 auto;border:0;background:rgba(255,255,255,.2);color:#fff;border-radius:999px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer;transition:.15s}
+.rooms button.on{background:#fff;color:var(--g1);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+
+/* AVATAR */
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;flex:0 0 auto;text-transform:uppercase}
+.mebadge .av{width:28px;height:28px}
+
+/* MESSAGES */
+#status{font-size:12px;color:var(--muted);text-align:center;padding:6px 14px 0}
+#msgs{flex:1;overflow-y:auto;padding:14px 14px 6px;display:flex;flex-direction:column;gap:3px;scroll-behavior:smooth}
+.day{align-self:center;font-size:11px;font-weight:600;color:var(--muted);background:var(--chip);padding:4px 12px;border-radius:999px;margin:8px 0}
+.row{display:flex;align-items:flex-end;gap:8px;max-width:86%;animation:pop .25s ease both}
+.row.me{align-self:flex-end;flex-direction:row-reverse}
+.row.gap{margin-top:10px}
+.row .sp{width:30px;flex:0 0 auto}
+.bub{padding:9px 13px;border-radius:18px;background:var(--other);color:var(--other-t);box-shadow:0 2px 8px rgba(60,70,140,.08);overflow-wrap:anywhere;position:relative}
+.row:not(.me) .bub{border-bottom-left-radius:6px}
+.row.me .bub{background:linear-gradient(135deg,var(--g1),#8a6bff);color:var(--mine-t);border-bottom-right-radius:6px}
+.nm{font-size:12px;font-weight:700;margin-bottom:2px}
+.tm{font-size:10.5px;opacity:.6;margin-left:10px;float:right;margin-top:6px}
+.empty{margin:auto;text-align:center;color:var(--muted);padding:24px}
+.empty .big{font-size:46px;margin-bottom:6px}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+
+/* COMPOSER */
+form{display:flex;gap:10px;align-items:center;padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 12px)}
+form input{flex:1;min-width:0;padding:14px 18px;border-radius:999px;border:0;background:var(--panel);color:var(--text);font:inherit;font-size:16px;box-shadow:var(--shadow);outline:none}
+.send{width:48px;height:48px;border:0;border-radius:50%;background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 18px rgba(106,92,255,.4);transition:transform .1s;flex:0 0 auto}
+.send:active{transform:scale(.9)}
+.send svg{width:22px;height:22px;fill:#fff;margin-left:2px}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <section id="login">
+    <div class="logo">💬</div>
+    <h1>Nommensen Chat</h1>
+    <p>Ruang ngobrol khusus mahasiswa kampus. Tanpa ribet nomor HP.</p>
+    <div class="card">
+      <input id="nick" maxlength="20" placeholder="Nama panggilanmu" autocomplete="off">
+      <button class="btn" id="enter">Masuk 🚀</button>
+    </div>
+  </section>
+
+  <section id="chat" class="hide" style="flex:1;flex-direction:column;min-height:0">
+    <header>
+      <div class="top">
+        <div class="brand"><div class="ic">💬</div><div><b>Nommensen Chat</b><span id="sub">Ruang mahasiswa</span></div></div>
+        <div class="mebadge"><div class="av" id="myav"></div><span id="who"></span></div>
+      </div>
+      <div class="rooms" id="rooms"></div>
+    </header>
+    <div id="status"></div>
+    <div id="msgs"></div>
+    <form id="f">
+      <input id="txt" maxlength="500" placeholder="Tulis pesan…" autocomplete="off">
+      <button class="send" type="submit" aria-label="Kirim"><svg viewBox="0 0 24 24"><path d="M3.4 20.4 21 12 3.4 3.6l-.01 6.5L15 12 3.4 13.9z"/></svg></button>
+    </form>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// ===== Isi dua baris ini untuk chat sungguhan (kosongkan = mode demo) =====
+var SUPABASE_URL = "https://aqurgyiimjgyqxoqnhto.supabase.co";
+var SUPABASE_KEY = "sb_publishable_XLGOqtX1F7ZoD6AYEebvXg_8KGLegIO";
+// ==========================================================================
+
+(function(){
+  var ROOMS=[["Umum","🏫"],["Kalkulus","📐"],["Pemrograman","💻"],["Fisika","⚛️"],["Bahasa Inggris","🇬🇧"],["Curhat","🫶"]];
+  var COLORS=["#6a5cff","#ff6b8b","#18b57e","#f59e0b","#0ea5e9","#a855f7","#ef4444","#14b8a6"];
+  var room="Umum",nick="",uid="",all=[],sb=null,demo=false;
+  var $=function(i){return document.getElementById(i)};
+  try{nick=localStorage.getItem("nick")||"";uid=localStorage.getItem("uid")||""}catch(e){}
+  if(!uid){uid="u"+Math.random().toString(36).slice(2,10);try{localStorage.setItem("uid",uid)}catch(e){}}
+  $("nick").value=nick;
+
+  function color(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return COLORS[h%COLORS.length]}
+  function avatar(name){var d=document.createElement("div");d.className="av";d.style.background=color(name);d.textContent=name.charAt(0);return d}
+  function hm(ts){return new Date(ts).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}
+  function dayLabel(ts){
+    var d=new Date(ts),n=new Date();
+    if(d.toDateString()===n.toDateString())return "Hari ini";
+    return d.toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long"});
+  }
+
+  function renderRooms(){
+    var h=$("rooms");h.innerHTML="";
+    ROOMS.forEach(function(r){
+      var b=document.createElement("button");b.textContent=r[1]+" "+r[0];
+      if(r[0]===room)b.className="on";
+      b.onclick=function(){room=r[0];renderRooms();renderMsgs()};
+      h.appendChild(b);
+    });
+    $("sub").textContent="Ruang: "+room;
+  }
+
+  function renderMsgs(){
+    var box=$("msgs");box.innerHTML="";
+    var list=all.filter(function(m){return m.room===room});
+    if(!list.length){
+      var e=document.createElement("div");e.className="empty";
+      e.innerHTML='<div class="big">👋</div><b>Belum ada obrolan</b><br>Jadilah yang pertama menyapa di ruang ini!';
+      box.appendChild(e);return;
+    }
+    var lastDay="",lastUid="",lastT=0;
+    list.forEach(function(m){
+      var t=new Date(m.created_at).getTime();
+      var dl=dayLabel(t);
+      if(dl!==lastDay){var dv=document.createElement("div");dv.className="day";dv.textContent=dl;box.appendChild(dv);lastDay=dl;lastUid=""}
+      var mine=m.uid===uid;
+      var grouped=(m.uid===lastUid&&t-lastT<5*60000);
+      var row=document.createElement("div");row.className="row"+(mine?" me":"")+(grouped?"":" gap");
+      if(!mine){row.appendChild(grouped?Object.assign(document.createElement("div"),{className:"sp"}):avatar(m.name))}
+      var b=document.createElement("div");b.className="bub";
+      if(!mine&&!grouped){var n=document.createElement("div");n.className="nm";n.style.color=color(m.name);n.textContent=m.name;b.appendChild(n)}
+      var tx=document.createElement("span");tx.textContent=m.text;b.appendChild(tx);
+      var tm=document.createElement("span");tm.className="tm";tm.textContent=hm(t);b.appendChild(tm);
+      row.appendChild(b);box.appendChild(row);
+      lastUid=m.uid;lastT=t;
+    });
+    box.scrollTop=box.scrollHeight;
+  }
+
+  function seed(){
+    var n=Date.now();
+    function s(room,name,text,min){return{room:room,name:name,uid:"x"+name,text:text,created_at:new Date(n-min*60000).toISOString()}}
+    all=[
+      s("Umum","Sinta","Halo semua! Ada yang tahu jadwal UTS minggu depan? 😅",42),
+      s("Umum","Budi","Kayaknya Senin mulai, cek papan pengumuman ya",39),
+      s("Umum","Budi","Katanya Kalkulus duluan",38),
+      s("Umum","Rina","Makasih infonya! 🙏",30),
+      s("Pemrograman","Dimas","Ada yang paham perulangan for di Python?",25),
+      s("Pemrograman","Sinta","Bisa! Coba kirim kodemu di sini 👍",22),
+      s("Kalkulus","Rina","Soal limit nomor 3 ada yang sudah ketemu jawabannya?",15)
+    ];
+  }
+
+  async function start(){
+    $("login").classList.add("hide");
+    var c=$("chat");c.classList.remove("hide");c.style.display="flex";
+    $("who").textContent=nick;
+    var av=avatar(nick);$("myav").replaceWith(av);av.id="myav";
+    renderRooms();
+    var ok=SUPABASE_URL&&SUPABASE_KEY&&window.supabase;
+    if(!ok){
+      demo=true;seed();
+      $("status").textContent="Mode demo · pesan hanya tampil di layarmu";
+      renderMsgs();return;
+    }
+    sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    $("status").textContent="Memuat pesan…";
+    var r=await sb.from("messages").select("*").order("created_at",{ascending:false}).limit(200);
+    if(r.error){$("status").textContent="Gagal memuat: "+r.error.message;return}
+    all=r.data.reverse();$("status").textContent="";renderMsgs();
+    sb.channel("pesan-baru").on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},function(p){
+      all.push(p.new);renderMsgs();
+    }).subscribe();
+  }
+
+  $("enter").onclick=function(){
+    var v=$("nick").value.trim();
+    if(!v){$("nick").focus();return}
+    nick=v;try{localStorage.setItem("nick",nick)}catch(e){}
+    start();
+  };
+  $("nick").addEventListener("keydown",function(e){if(e.key==="Enter")$("enter").click()});
+
+  $("f").onsubmit=async function(e){
+    e.preventDefault();
+    var v=$("txt").value.trim();if(!v)return;
+    $("txt").value="";
+    if(demo){all.push({room:room,name:nick,uid:uid,text:v,created_at:new Date().toISOString()});renderMsgs();return}
+    if(!sb)return;
+    var r=await sb.from("messages").insert({room:room,name:nick,uid:uid,text:v});
+    if(r.error){$("status").textContent="Pesan gagal terkirim: "+r.error.message;$("txt").value=v}
+  };
+})();
+</script>
+</body>
+</html>
